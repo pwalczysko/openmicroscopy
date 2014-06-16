@@ -1333,4 +1333,9 @@ public interface ImViewer
      * @return See above.
      */
     int getRealSelectedT();
+    
+    /**
+     * Reloads the 'saved by' thumbnails of the the rendering panel
+     */
+    public void reloadRenderingThumbs();
 }
