@@ -28,6 +28,8 @@ namespace omero {
         // =========================================================================
 
         const omero::RBoolPtr rbool(bool val) {
+            static const omero::RBoolPtr rtrue = new RBoolI(true);
+            static const omero::RBoolPtr rfalse = new RBoolI(false);
             if (val) {
                 return rtrue;
             } else {
@@ -44,6 +46,7 @@ namespace omero {
         }
 
         const omero::RIntPtr rint(Ice::Int val) {
+            static const omero::RIntPtr rint0 = new RIntI(0);
             if (val == 0) {
                 return rint0;
             }
@@ -51,6 +54,7 @@ namespace omero {
         }
 
         const omero::RLongPtr rlong(Ice::Long val) {
+            static const omero::RLongPtr rlong0 = new RLongI(0);
             if (val == 0) {
                 return rlong0;
             }
@@ -65,6 +69,7 @@ namespace omero {
         // =========================================================================
 
         const omero::RInternalPtr rinternal(const omero::InternalPtr& val) {
+            static const omero::RInternalPtr rnullinternal = new RInternalI(omero::InternalPtr());
             if (! val) {
                 return rnullinternal;
             }
@@ -72,6 +77,7 @@ namespace omero {
         }
 
         const omero::RObjectPtr robject(const omero::model::IObjectPtr& val) {
+            static const omero::RObjectPtr rnullobject = new RObjectI(omero::model::IObjectPtr());
             if (! val) {
                 return rnullobject;
             }
@@ -79,6 +85,7 @@ namespace omero {
         }
 
         const omero::RClassPtr rclass(const std::string& val) {
+            static const omero::RClassPtr remptyclass = new RClassI("");
             if (val.empty()) {
                 return remptyclass;
             }
@@ -86,6 +93,7 @@ namespace omero {
         }
 
         const omero::RStringPtr rstring(const std::string& val) {
+            static const omero::RStringPtr remptystr = new RStringI("");
             if (val.empty()) {
                 return remptystr;
             }
