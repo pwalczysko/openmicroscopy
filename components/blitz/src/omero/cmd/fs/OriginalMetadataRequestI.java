@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.TreeMap;
 
 import loci.formats.IFormatReader;
+import loci.formats.in.DeltavisionReader;
 import ome.api.IQuery;
 import ome.io.nio.PixelsService;
 import ome.model.annotations.FileAnnotation;
@@ -195,10 +196,19 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 
 		final IceMapper mapper = new IceMapper();
 		for (Entry<String, Object> entry : table.entrySet()) {
+			String key = entry.getKey();
+			Object val = entry.getValue();
 			try {
-				rv.put(entry.getKey(), mapper.toRType(entry.getValue()));
+				if (val instanceof Short) {
+					// Likely could be handled in toRType
+					rv.put(key, mapper.toRType(((Short) val).intValue()));
+				} else {
+					rv.put(key, mapper.toRType(val));
+				}
 			} catch (Exception e) {
-				String msg = "Count not convert to rtype " + entry.getValue();
+				String msg = String.format("Could not convert to rtype: " +
+					"key=%s, value=%s, type=%s ", key, val,
+					(val == null ? "null" : val.getClass()));
 				if (helper == null) {
 					// from command-line
 					System.err.println(msg);
