@@ -23,6 +23,7 @@
 fs plugin for querying repositories, filesets, and the like.
 """
 
+import platform
 import sys
 
 from collections import defaultdict
@@ -44,8 +45,13 @@ from omero.util.temp_files import create_path
 from omero.util.text import filesizeformat
 from omero.fs import TRANSFERS
 
+from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
 
 HELP = """Filesystem utilities"""
+
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
@@ -426,6 +432,7 @@ Examples:
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
+    @windows_warning
     @admin_only
     def rename(self, args):
         """Moves an existing fileset to a new location (admin-only)
@@ -435,6 +442,7 @@ it may be useful to rename an existing fileset to match the new
 template. By default the original files and import log are also
 moved.
 """
+
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
         uid = self.ctx.get_event_context().userId

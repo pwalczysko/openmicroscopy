@@ -18,8 +18,12 @@ import re
 from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
+from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
+
 HELP = "OMERO.web configuration/deployment tools"
 
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 LONGHELP = """OMERO.web configuration/deployment tools
 
@@ -58,6 +62,7 @@ Example IIS usage:
 def config_required(func):
     """Decorator validating Django dependencies and omeroweb/settings.py"""
     def import_django_settings(func):
+        @windows_warning
         def wrapper(self, *args, **kwargs):
             try:
                 import django  # NOQA
