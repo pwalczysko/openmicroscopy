@@ -69,6 +69,17 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
+var linkify = function(input) {
+    var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
+    return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
+};
+OME.linkify_element = function(elements) {
+    elements.each(function() {
+        var $this = $(this);
+        $this.html(linkify($this.html()));
+    });
+};
+
 // called from OME.tree_selection_changed() below
 OME.handle_tree_selection = function(data, event) {
 
@@ -1027,6 +1038,27 @@ OME.applyRenderingSettings = function(rdef_url, selected) {
         350,
         175
     );
+};
+
+// pair of methods used by right panel tab panes
+// to store expanded state between right-panel reloads
+OME.setPaneExpanded = function setPaneExpanded(name, expanded) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    if (expanded && open_panes.indexOf(name) === -1) {
+        open_panes.push(name);
+    }
+    if (!expanded && open_panes.indexOf(name) > -1) {
+        open_panes = open_panes.reduce(function(l, item){
+            if (item !== name) l.push(item);
+            return l;
+        }, []);
+    }
+    $("#metadata_general").data('open_panes', open_panes);
+};
+
+OME.getPaneExpanded = function getPaneExpanded(name) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    return open_panes.indexOf(name) > -1;
 };
 
 jQuery.fn.tooltip_init = function() {
