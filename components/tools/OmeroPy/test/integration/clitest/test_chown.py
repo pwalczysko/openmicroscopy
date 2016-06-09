@@ -469,7 +469,7 @@ class TestChown(CLITest):
     # These tests check the default exclusion of the annotations:
     # FileAnnotation, TagAnnotation and TermAnnotation
 
-    def testDefaultExclusion(self):
+    def testAbsenceOfDefaultExclusion(self):
         img = self.update.saveAndReturnObject(self.new_image())
         fa = self.make_file_annotation()
         tag = self.make_tag()
@@ -481,27 +481,19 @@ class TestChown(CLITest):
         client, user = self.new_client_and_user(group=self.group)
         self.args += ['%s' % user.id.val]
         self.args += ['Image:%s' % img.id.val]
-        print self.args
-        print "image", img.id.val
-        print "fa", fa.id.val
-        print "tag", tag.id.val
         self.cli.invoke(self.args, strict=True)
 
         # Check that the image has been transferred,
-        # but that both annotations have not been transferred.
-        # Note that this test is failing for yet unexplained
-        # reason - fa and tag seem to be transferred
-        # but the same workflow in Insight & CLI with real images
-        # appears NOT to transfer the annotations
+        # and both annotations have been transferred.
         obj = self.query.get('Image', img.id.val, all_grps)
         assert obj.id.val == img.id.val
         assert obj.details.owner.id.val == user.id.val
         obj = self.query.get('FileAnnotation', fa.id.val, all_grps)
         assert obj.id.val == fa.id.val
-        assert obj.details.owner.id.val == self.user.id.val
+        assert obj.details.owner.id.val == user.id.val
         obj = self.query.get('TagAnnotation', tag.id.val, all_grps)
         assert obj.id.val == tag.id.val
-        assert obj.details.owner.id.val == self.user.id.val
+        assert obj.details.owner.id.val == user.id.val
 
 
 class TestChownRoot(RootCLITest):
