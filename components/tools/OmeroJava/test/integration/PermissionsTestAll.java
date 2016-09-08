@@ -28,9 +28,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import omero.RLong;
 import omero.RString;
+import omero.RType;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
+import omero.api.IQueryPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chgrp2;
 import omero.cmd.CmdCallbackI;
@@ -439,23 +442,70 @@ public class PermissionsTestAll extends AbstractServerTest {
                 Image.class.getSimpleName());
         long imageId = targets.get(0);
 
+        if (response != null){
+            String sourceGroupPerms = permissionsAsString(session
+                    .getAdminService().getGroup(sourceGroup));
+            String targetGroupPerms = permissionsAsString(session
+                    .getAdminService().getGroup(targetGroup));
+            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
+            final String query = "SELECT details.owner.id FROM Image WHERE id = :id";
+            final IQueryPrx iQueryRoot = root.getSession().getQueryService();
+            final List<List<RType>> results = iQueryRoot.projection(query, new ParametersI().addId(imageId), allGroupsContext);
+            final long imageOwnerId = ((RLong) results.get(0).get(0)).getValue();
+            final List<Long> memberOfGroups = iAdmin.getMemberOfGroupIds(iAdmin.getExperimenter(userId));
+            final boolean isMemberOfTarget = memberOfGroups.contains(targetGroup);
+//            System.out.println("Test : User id: " + userId + " (" + username + ")"
+//                    + " tried moving image " + imageId + " belonging to " + imageOwnerId + " from " + sourceGroup
+//                    + "(" + sourceGroupPerms + ")" + " to " + targetGroup + "("
+//                    + targetGroupPerms + ") (is member = " + isMemberOfTarget + ") response returned");
+        }
         if (response == null) {
             String sourceGroupPerms = permissionsAsString(session
                     .getAdminService().getGroup(sourceGroup));
             String targetGroupPerms = permissionsAsString(session
                     .getAdminService().getGroup(targetGroup));
-
+            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
+            final String query = "SELECT details.owner.id FROM Image WHERE id = :id";
+            final IQueryPrx iQueryRoot = root.getSession().getQueryService();
+            final List<List<RType>> results = iQueryRoot.projection(query, new ParametersI().addId(imageId), allGroupsContext);
+            final long imageOwnerId = ((RLong) results.get(0).get(0)).getValue();
+            final List<Long> memberOfGroups = iAdmin.getMemberOfGroupIds(iAdmin.getExperimenter(userId));
+            final boolean isMemberOfTarget = memberOfGroups.contains(targetGroup);
+            System.out.println("Test : User id: " + userId + " (" + username + ")"
+                    + " tried moving image " + imageId + " belonging to " + imageOwnerId + " from " + sourceGroup
+                    + "(" + sourceGroupPerms + ")" + " to " + targetGroup + "("
+                    + targetGroupPerms + ") (is member = " + isMemberOfTarget + ") no response returned");
             Assert.fail("Failure : User id: " + userId + " (" + username + ")"
                     + " tried moving image " + imageId + " from " + sourceGroup
                     + "(" + sourceGroupPerms + ")" + " to " + targetGroup + "("
                     + targetGroupPerms + ") no response returned");
         } else if (response instanceof DoAllRsp) {
+            /* move succeeded */
             List<Response> responses = ((DoAllRsp) response).responses;
+            String sourceGroupPerms = permissionsAsString(session
+                    .getAdminService().getGroup(sourceGroup));
+            String targetGroupPerms = permissionsAsString(session
+                    .getAdminService().getGroup(targetGroup));
+            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
+            final String query = "SELECT details.owner.id FROM Image WHERE id = :id";
+            final IQueryPrx iQueryRoot = root.getSession().getQueryService();
+            final List<List<RType>> results = iQueryRoot.projection(query, new ParametersI().addId(imageId), allGroupsContext);
+            final long imageOwnerId = ((RLong) results.get(0).get(0)).getValue();
+            final List<Long> memberOfGroups = iAdmin.getMemberOfGroupIds(iAdmin.getExperimenter(userId));
+            final boolean isMemberOfTarget = memberOfGroups.contains(targetGroup);
+            System.out.println("Test : User id: " + userId + " (" + username + ")"
+                    + " tried moving image " + imageId + " belonging to " + imageOwnerId + " from " + sourceGroup
+                    + "(" + sourceGroupPerms + ")" + " to " + targetGroup + "("
+                    + targetGroupPerms + ") (is member = " + isMemberOfTarget + ") move succeeded");
+            if (userId == imageOwnerId) {
+                System.out.println("mover is owner");
+            }
             if (responses.size() == 1) {
                 Response r = responses.get(0);
                 Assert.assertTrue(r instanceof OK, "move OK");
             }
         } else if (response instanceof ERR) {
+            /* move reported an error */
             String sourceGroupPerms = permissionsAsString(session
                     .getAdminService().getGroup(sourceGroup));
             String targetGroupPerms = permissionsAsString(session
