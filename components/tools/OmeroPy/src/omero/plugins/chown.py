@@ -69,6 +69,9 @@ class ChownControl(GraphControl):
         parser.add_argument(
             "usr", nargs="?", type=ExperimenterArg,
             help="""user to transfer ownership of objects to""")
+        parser.add_argument(
+            "targetusr", nargs="?", type=ExperimenterArg,
+            help="""user all of whose objects to transfer ownership""")
 
     def _process_request(self, req, args, client):
         # Retrieve user id
@@ -76,21 +79,38 @@ class ChownControl(GraphControl):
         if uid is None:
             self.ctx.die(196, "Failed to find user: %s" % args.usr.orig)
 
+        # Retrieve targetUser id
+        utargetid = args.targetusr.lookup(client)
+        if utargetid is None:
+            self.ctx.die(196, "Failed to find user: %s" % args.targetusr.orig)
+        targetUsers = []
+        targetUsers.append(utargetid)
+
         # Set requests user
         import omero
         if isinstance(req, omero.cmd.DoAll):
             for request in req.requests:
                 if isinstance(request, omero.cmd.SkipHead):
                     request.request.userId = uid
+                    #request.request.targetUsers = utargetid
                 else:
                     request.userId = uid
+                    #request.targetUsers = utargetid
         else:
             if isinstance(req, omero.cmd.SkipHead):
                 req.request.userId = uid
+                #req.request.targetUsers = utargetid
             else:
                 req.userId = uid
+                req.targetUsers = targetUsers
 
         super(ChownControl, self)._process_request(req, args, client)
+        self.ctx.out("req")
+        self.ctx.out(req)
+        self.ctx.out(req.userId)
+        self.ctx.out(req.targetUsers)
+        self.ctx.out("utargetid")
+        self.ctx.out(utargetid)
 
     def print_detailed_report(self, req, rsp, status):
         import omero
