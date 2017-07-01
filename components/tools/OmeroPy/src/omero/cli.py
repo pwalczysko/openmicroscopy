@@ -1580,6 +1580,7 @@ class GraphArg(object):
     def __call__(self, arg):
         cmd = self.cmd_type()
         targetObjects = dict()
+        targetUsers = []
         try:
             parts = arg.split(":", 1)
             assert len(parts) == 2
@@ -1597,8 +1598,16 @@ class GraphArg(object):
                     ids.extend(range(low, high+1))
                 else:
                     ids.append(long(id))
-            targetObjects[graph[0]] = ids
+            if not "Experimenter" in graph:
+                targetObjects[graph[0]] = ids
+                print "Experimenter not found"
+            else:
+                targetUsers = ids
+                print "Experimenter"
+            print "ids"
+            print ids
             cmd.targetObjects = targetObjects
+            cmd.targetUsers = targetUsers
             if len(graph) > 1:
                 skiphead = omero.cmd.SkipHead()
                 skiphead.request = cmd

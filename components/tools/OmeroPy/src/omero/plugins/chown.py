@@ -69,9 +69,9 @@ class ChownControl(GraphControl):
         parser.add_argument(
             "usr", nargs="?", type=ExperimenterArg,
             help="""user to transfer ownership of objects to""")
-        parser.add_argument(
-            "targetusr", nargs="?", type=ExperimenterArg,
-            help="""user all of whose objects to transfer ownership""")
+        #parser.add_argument(
+        #   "targetusr", nargs="?", type=ExperimenterArg,
+        #  help="""user all of whose objects to transfer ownership""")
 
     def _process_request(self, req, args, client):
         # Retrieve user id
@@ -80,11 +80,11 @@ class ChownControl(GraphControl):
             self.ctx.die(196, "Failed to find user: %s" % args.usr.orig)
 
         # Retrieve targetUser id
-        utargetid = args.targetusr.lookup(client)
-        if utargetid is None:
-            self.ctx.die(196, "Failed to find user: %s" % args.targetusr.orig)
+        #utargetid = args.targetusr.lookup(client)
+        #if utargetid is None:
+        #    self.ctx.die(196, "Failed to find user: %s" % args.targetusr.orig)
         targetUsers = []
-        targetUsers.append(utargetid)
+        targetObjects = {}
 
         # Set requests user
         import omero
@@ -102,15 +102,20 @@ class ChownControl(GraphControl):
                 #req.request.targetUsers = utargetid
             else:
                 req.userId = uid
-                req.targetUsers = targetUsers
-
-        super(ChownControl, self)._process_request(req, args, client)
+                if "Experimenter" in req.targetObjects:
+                    #targetUsers.append(req.targetObjects.get("Experimenter"))
+                    req.targetUsers = targetUsers.append(long(52))
+        
         self.ctx.out("req")
         self.ctx.out(req)
         self.ctx.out(req.userId)
         self.ctx.out(req.targetUsers)
-        self.ctx.out("utargetid")
-        self.ctx.out(utargetid)
+
+        super(ChownControl, self)._process_request(req, args, client)
+
+        #
+        #self.ctx.out("utargetid")
+        #self.ctx.out(utargetid)
 
     def print_detailed_report(self, req, rsp, status):
         import omero
