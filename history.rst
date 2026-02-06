@@ -5,6 +5,36 @@
 OMERO version history
 =====================
 
+5.6.17 (February 2026)
+----------------------
+
+This is a bug-fix release of OMERO.server which includes:
+
+- an upgrade of Bio-Formats from 8.2.0 to 8.4.0. The new version will invalidate
+  previous Bio-Formats cache files. Please refer to the upgrade documentation
+  for further information.
+- an upgrade of the OMERO scripts from 5.9.1 to 5.10.0. The new version includes
+  several bug fixes as well as the ability to specify custom labels in the Split
+  View Figure script
+
+The IceGrid templates have been updated to use a local temporary directory, `var/tmp`,
+for the Java processes. This change allows the server and notably Bio-Formats to remain
+fully functional on hardened environments where the `noexec` mount option has been set on
+the `/tmp` partitition.
+
+This version of OMERO.server has been tested with OMERO.py 5.22.0 and OMERO.web 5.30.1. We
+recommend to upgrade Python version to at least 3.10 and Django to version 5.2.
+
+The following OMERO.server dependencies have been upgraded:
+
+- `org.openmicroscopy:omero-blitz` from 5.8.3 to 5.8.4
+- `org.openmicroscopy:omero-common` from 5.7.3 to 5.7.4
+- `org.openmicroscopy:omero-gateway-java` from 5.10.3 to 5.10.5
+- `org.openmicroscopy:omero-model` from 5.7.3 to 5.7.4
+- `org.openmicroscopy:omero-server` from 5.7.3 to 5.7.4
+- `org.openmicroscopy:omero-renderer` from 5.6.3 to 5.6.4
+- `org.openmicroscopy:omero-romio` from 5.8.3 to 5.8.4
+
 5.6.16 (June 2025)
 ------------------
 
